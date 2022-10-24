@@ -31,12 +31,11 @@ void processStr(string &s, vector<string> &vs) {
                 vs.push_back(string(left + 1, it));
 
                 // replace str by "
-                it = s.erase(left, it + 1);
-                it = s.insert(it, ' ');
+                while(left != it + 1) {
+                    *left++ = ' ';
+                }
                 it = s.insert(it, '"');
-                it = s.insert(it, ' ');
-
-                it += 2;
+                ++it;
                 flag = false;
             }
         }
@@ -70,13 +69,22 @@ void processSpace(string &s) {
     }
 }
 
+
 int main() {
     ifstream in("testfile.txt");
     ofstream out("output.txt");
     string line;
     while(getline(in, line)) {
         vector<string> strV;
-        processStr(line, strV);
+        string temp;
+        istringstream gettemp(line);
+        gettemp >> temp;
+        if(temp.size() >= 5) temp = string(temp.cbegin(), temp.cbegin() + 5);
+        if(temp == "print") {
+            // cout << line << endl;
+            processStr(line, strV);
+            // cout << line << endl;
+        }
         processSpace(line);
         int strIndex = 0;
         string word;
