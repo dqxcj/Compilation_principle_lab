@@ -47,4 +47,18 @@ const int RETUSEGR = 79; //返回语句
 const int MUSTGR = 80; //必须的
 const int NOTMUGR = 81; //不是必须的
 
+
+
+const int E = 100;
+const int T = 101;
+const int E1 = 102;
+const int NU = 103;
+const int F = 104;
+const int T1 = 105;
+const int Jia = 106;
+const int Chen = 107;
+const int I = 108;
+const int Lkh = 109;
+const int Rkh = 110;
+
 #endif
