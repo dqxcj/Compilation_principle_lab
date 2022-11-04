@@ -1,23 +1,56 @@
 #include <iostream>
 #include <vector>
+#include <deque>
 #include <unordered_map>
 #include <unordered_set>
+#include <memory>
 #include "lab2.h"
 using namespace std;
 
-
-
-unordered_map<int, vector<vector<int>>> grammar = {
-    {E, {{T, E1}}},
-    {E1, {{Jia, T, E1}, {NU}}},
-    {T, {{F, T1}}},
-    {T1, {{Chen, F, T1}, {NU}}},
-    {F, {{I}, {Lkh, E, Rkh}}}
+unordered_map<int, vector<vector<int>>> grammar = {  //此处修改
+    {PROCGR, {{MAINGR}, {CSGR, MAINGR}, {CDGR, MAINGR}, {CSGR, CDGR, MAINGR}, {CSGR, TFUNGR, MAINGR}, {CDGR, TFUNGR, MAINGR}, {CSGR, CDGR, TFUNGR, MAINGR}, {TFUNGR, MAINGR}}}, //程序
+    {TFUNGR, {{REFUNGR, TFUNGR}, {VOFUNGR, TFUNGR}, {NU}}}, //{有返回值函数定义|无返回值函数定义}
+    {CSGR, {{CONSTTK, CDGR, SENGR, CSGRH}}}, //常量说明
+    {CSGRH, {{CONSTTK, CDGR, SENGR, CSGRH}, {NU}}}, //辅助常量说明
+    {CDGR, {{INTTK, IDENFR, ASSIGN, INTGR, CDGRH1}, {CHARTK, IDENFR, ASSIGN, CHARCON, CDGRH2}}}, //常量定义
+    {CDGRH1, {{IDENFR, ASSIGN, INTGR, CDGRH1}, {NU}}}, //辅助常量定义1
+    {CDGRH2, {{IDENFR, ASSIGN, CHARCON, CDGRH2}, {NU}}},
+    {INTGR, {{UINTGR}, {PLUS, UINTGR}}, {MINU, UINTGR}},
+    {STAHGR, {{INTTK, IDENFR}, {CHARTK, IDENFR}}},
+    {VARSGR, {{VARDGR, SEMICN, VARSGRH}}},
+    {VARSGRH, {{VARDGR, SEMICN, VARSGRH}, {NU}}},
+    {VARDGR}
 };
+
+unordered_map<int, string> re = {  //此处修改
+    {E, "E"},
+    {T, "T"},
+    {E1, "E1"},
+    {NU, "NU"},
+    {F, "F"},
+    {T1, "T1"},
+    {Jia, "Jia"},
+    {Chen, "Chen"},
+    {I, "I"},
+    {Lkh, "Lkh"},
+    {Rkh, "Rkh"}
+};
+
+class Node
+{
+public:
+    Node();
+    Node(int val): val_(val) {}
+
+    int val_ = 0;
+    vector<shared_ptr<Node>> children_;
+};
+
+
 
 unordered_map<int, unordered_set<int>> first;
 unordered_map<int, unordered_set<int>> follow;
-unordered_map<int, unordered_multimap<int, vector<int>>> predictAnalyzeTable;
+unordered_map<int, unordered_map<int, vector<int>>> predictAnalyzeTable;
 
 bool IsNotEnd(int val) {
     if(grammar.find(val) != grammar.cend()) {
@@ -151,8 +184,54 @@ vector<int> GetSelect(const int notEnd, vector<int> &right) {
     return select;
 }
 
-void GetLexeme(vector<int> &input, vector<int> &analyze, unordered_map<int, unordered_multimap<int, vector<int>>> &PAT) {
-    return ;
+deque<vector<vector<int>>> GetLexeme(vector<int> &input, vector<int> &analyze) {
+    deque<vector<vector<int>>> lexeme;
+    while(input.size() != 0 || analyze.size() != 0) {
+        vector<int> childrenValV;
+        if(input.size() > 0 && predictAnalyzeTable.find(analyze.back()) != predictAnalyzeTable.end()) {
+            childrenValV = predictAnalyzeTable[analyze.back()][input.back()];
+            lexeme.push_back({{analyze.back()}, {childrenValV}});
+        }
+        if(input.size() == 0) {
+            lexeme.push_back({{analyze.back()}, {{NU}}});
+        }
+        if(input.size() > 0 && input.back() == analyze.back()) {
+            input.pop_back();
+        }
+        analyze.pop_back();
+        for(auto it = childrenValV.crbegin(); it != childrenValV.crend(); ++it) {
+            analyze.push_back(*it);
+        }
+    }
+    return lexeme;
+}
+
+shared_ptr<Node> GetTree(deque<vector<vector<int>>> &lexeme, int val) {
+    int nodeVal = val;
+    vector<int> nodeChildren;
+    shared_ptr<Node> node = NULL;
+
+    if(IsNotEnd(nodeVal)) {
+        nodeVal = lexeme[0][0][0];
+        nodeChildren = lexeme[0][1];
+        lexeme.pop_front();
+    }
+    if(nodeVal != NU) 
+        node = make_shared<Node>(nodeVal);
+    for(auto &i : nodeChildren) {
+        node -> children_.push_back(GetTree(lexeme, i));
+    }
+    return node;
+}
+
+void OutputTree(shared_ptr<Node> node) {
+    if(node == NULL) {
+        return ;
+    }
+    for(auto child : node -> children_) {
+        OutputTree(child);
+    }
+    cout << re[node -> val_] << endl;
 }
 
 int main() {
@@ -161,24 +240,25 @@ int main() {
             GetFirst(p.first);
         }
     }
-    for(auto &p : first) {
-        cout << p.first << '\t';
-        for(auto &i : p.second) {
-            cout << i << " ";
-        }
-        cout << endl;
-    }
-    cout << endl;
-    follow[E].insert(NU);
+    // for(auto &p : first) {
+    //     cout << p.first << '\t';
+    //     for(auto &i : p.second) {
+    //         cout << i << " ";
+    //     }
+    //     cout << endl;
+    // }
+    // cout << endl;
+    follow[E].insert(NU);  //此处修改
     GetFollow();
     GetFollow();
-    for(auto &p : follow) {
-        cout << p.first << "\t";
-        for(auto &i : p.second) {
-            cout << i << " ";
-        }
-        cout << endl;
-    }
+    // for(auto &p : follow) {
+    //     cout << p.first << "\t";
+    //     for(auto &i : p.second) {
+    //         cout << i << " ";
+    //     }
+    //     cout << endl;
+    // }
+    // cout << endl;
     for(auto &p : grammar) {
         for(auto &v : p.second) {
             vector<int> select = GetSelect(p.first, v);
@@ -187,20 +267,30 @@ int main() {
             }
         }
     }
-    for(auto &p1 : predictAnalyzeTable) {
-        cout << p1.first << "\t";
-        for(auto &p2 : p1.second) {
-            cout << "\tEnd" << p2.first << "\t";
-            for(auto &i : p2.second) {
-                cout << i << " ";
-            }
-        }
-        cout << endl;
-    }
+    // for(auto &p1 : predictAnalyzeTable) {
+    //     cout << p1.first << "\t";
+    //     for(auto &p2 : p1.second) {
+    //         cout << "\tEnd" << p2.first << "\t";
+    //         for(auto &i : p2.second) {
+    //             cout << i << " ";
+    //         }
+    //     }
+    //     cout << endl;
+    // }
 
-    vector<int> input = {I, Jia, I, Chen, I};
-    vector<int> analyze = {E};
-    GetLexeme(input, analyze, predictAnalyzeTable);
+    vector<int> input = {I, Chen, I, Jia, I};  //此处修改
+    vector<int> analyze = {E};  //此处修改
+    deque<vector<vector<int>>> lexeme = GetLexeme(input, analyze);
+    // for(auto &vec : lexeme) {
+    //     cout << vec[0][0] << "\t->\t";
+    //     for(auto &i : vec[1]) {
+    //         cout << i << " ";
+    //     }
+    //     cout << endl;
+    // }
+    shared_ptr<Node> root = GetTree(lexeme, lexeme[0][0][0]);
+
+    OutputTree(root);
 
     return 0;
 }
