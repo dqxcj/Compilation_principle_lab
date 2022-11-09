@@ -1,39 +1,163 @@
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <deque>
 #include <unordered_map>
 #include <unordered_set>
 #include <memory>
+#include "lab1.h"
 #include "lab2.h"
 using namespace std;
 
-unordered_map<int, vector<vector<int>>> grammar = {  //姝ゅ淇敼
-    {PROCGR, {{MAINGR}, {CSGR, MAINGR}, {CDGR, MAINGR}, {CSGR, CDGR, MAINGR}, {CSGR, TFUNGR, MAINGR}, {CDGR, TFUNGR, MAINGR}, {CSGR, CDGR, TFUNGR, MAINGR}, {TFUNGR, MAINGR}}}, //绋嬪簭
-    {TFUNGR, {{REFUNGR, TFUNGR}, {VOFUNGR, TFUNGR}, {NU}}}, //{鏈夎繑鍥炲�煎嚱鏁板畾涔墊鏃犺繑鍥炲�煎嚱鏁板畾涔墋
-    {CSGR, {{CONSTTK, CDGR, SENGR, CSGRH}}}, //甯搁噺璇存槑
-    {CSGRH, {{CONSTTK, CDGR, SENGR, CSGRH}, {NU}}}, //杈呭姪甯搁噺璇存槑
-    {CDGR, {{INTTK, IDENFR, ASSIGN, INTGR, CDGRH1}, {CHARTK, IDENFR, ASSIGN, CHARCON, CDGRH2}}}, //甯搁噺瀹氫箟
-    {CDGRH1, {{IDENFR, ASSIGN, INTGR, CDGRH1}, {NU}}}, //杈呭姪甯搁噺瀹氫箟1
-    {CDGRH2, {{IDENFR, ASSIGN, CHARCON, CDGRH2}, {NU}}},
-    {INTGR, {{UINTGR}, {PLUS, UINTGR}}, {MINU, UINTGR}},
+unordered_map<int, vector<vector<int>>> grammar = {  //此处修改
+    {PROCGR, {{MAINGR}, {CSGR, MAINGR}, {CDGR, MAINGR}, {CSGR, CDGR, MAINGR}, {CSGR, TFUNGR, MAINGR}, {CDGR, TFUNGR, MAINGR}, {CSGR, CDGR, TFUNGR, MAINGR}, {TFUNGR, MAINGR}}}, //程序
+    {TFUNGR, {{REFUNGR, TFUNGR}, {VOFUNGR, TFUNGR}, {NU}}}, //{有返回值函数定义|无返回值函数定义}
+    {CSGR, {{CONSTTK, CDGR, SEMICN, CSGRH}}}, //常量说明
+    {CSGRH, {{CONSTTK, CDGR, SEMICN, CSGRH}, {NU}}}, //辅助常量说明
+    {CDGR, {{INTTK, IDENFR, ASSIGN, INTGR, CDGRH1}, {CHARTK, IDENFR, ASSIGN, CHARCON, CDGRH2}}}, //常量定义
+    {CDGRH1, {{COMMA, IDENFR, ASSIGN, INTGR, CDGRH1}, {NU}}}, //辅助常量定义1
+    {CDGRH2, {{COMMA, IDENFR, ASSIGN, CHARCON, CDGRH2}, {NU}}},
+    {UINTGR, {{INTCON}}},
+    {INTGR, {{UINTGR}, {PLUS, UINTGR}, {MINU, UINTGR}}},
     {STAHGR, {{INTTK, IDENFR}, {CHARTK, IDENFR}}},
     {VARSGR, {{VARDGR, SEMICN, VARSGRH}}},
     {VARSGRH, {{VARDGR, SEMICN, VARSGRH}, {NU}}},
-    {VARDGR}
+    {VARDGR, {{TYIDGR, IDENFR, VARDGRH}, {TYIDGR, IDENFR, LBRACK, UINTGR, RBRACK, VARDGRH}}},
+    {VARDGRH, {{COMMA, IDENFR, VARDGRH}, {COMMA, IDENFR, LBRACK, UINTGR, RBRACK, VARDGRH}, {NU}}},
+    {REFUNGR, {{STAHGR, LPARENT, PARAGR, RPARENT, LBRACE, COMSEGR, RBRACE}}},
+    {VOFUNGR, {{VOIDTK, IDENFR, LPARENT, PARAGR, RPARENT, LBRACE, COMSEGR, RBRACE}}},
+    {COMSEGR, {{SELIGR}, {CSGR, SELIGR}, {VARSGR, SELIGR}, {CSGR, VARSGR, SELIGR}}},
+    {PARAGR, {{TYIDGR, IDENFR, PARAGR}, {TYIDGR, IDENFR, COMMA, PARAGR},{NU}}},
+    {MAINGR, {{VOIDTK, MAINTK, LPARENT, RPARENT, LBRACE, COMSEGR, RBRACE}}},
+    {EXPGR, {{XIGR, EXPGRH}, {PLUS, XIGR, EXPGRH}, {MINU, XIGR, EXPGRH}}},
+    {EXPGRH, {{PLUS, XIGR, EXPGRH}, {MINU, XIGR, EXPGRH}, {NU}}}, 
+    {XIGR, {{TRAGR, XIGRH}}},
+    {XIGRH, {{NU}, {MULT, TRAGR, XIGRH}, {DIV, TRAGR, XIGRH}}},
+    {TRAGR, {{IDENFR}, {IDENFR, LBRACK, EXPGR, RBRACK}, {LPARENT, EXPGR, RPARENT}, {INTGR}, {CHARCON}, {REFUNUGR}}},
+    {SENGR, {{IFSENGR}, {LOOPGR}, {LBRACE, SELIGR, RBRACE}, {REFUNUGR, SEMICN}, {VOFUNUGR, SEMICN}, {EQSENGR, SEMICN}, {READSEGR, SEMICN}, {WRISEGR, SEMICN}, {NU, SEMICN}, {RETUSEGR, SEMICN}}},
+    {EQSENGR, {{IDENFR, ASSIGN, EXPGR}, {IDENFR, LBRACK, EXPGR, RBRACK, ASSIGN, EXPGR}}},
+    {IFSENGR, {{IFTK, LPARENT, IFGR, RPARENT, SENGR}, {IFTK, LPARENT, IFGR, RPARENT, SENGR, ELSETK, SENGR}}},
+    {IFGR, {{EXPGR, IFGRH, EXPGR}, {EXPGR}}},
+    {IFGRH, {{LSS}, {LEQ}, {GRE}, {GEQ}, {NEQ}, {EQL}}},
+    {LOOPGR, {{WHILETK, LPARENT, IFGR, RPARENT, SENGR}, {DOTK, SENGR, WHILETK, LPARENT, IFGR, RPARENT}, {FORTK, LPARENT, IDENFR, ASSIGN, EXPGR, SEMICN, IFGR, SEMICN, IDENFR, ASSIGN, IDENFR, PLUS, WLENGR, RPARENT, SENGR}, {FORTK, LPARENT, IDENFR, ASSIGN, EXPGR, SEMICN, IFGR, SEMICN, IDENFR, ASSIGN, IDENFR, MINU, WLENGR, RPARENT, SENGR}}}, 
+    {WLENGR, {{UINTGR}}},
+    {REFUNUGR, {{IDENFR, LPARENT, VPALIGR, RPARENT}}},
+    {VOFUNUGR, {{IDENFR, LPARENT, VPALIGR, RPARENT}}},
+    {VPALIGR, {{EXPGR}, {EXPGR, COMMA}, {NU}}},
+    {SELIGR, {{SENGR, SELIGR}, {NU}}},
+    {READSEGR, {{SCANFTK, LPARENT, READSEGRH, RPARENT}}},
+    {READSEGRH, {{NU}, {COMMA, IDENFR, READSEGRH}}},
+    {WRISEGR, {{PRINTFTK, LPARENT, STRCON, EXPGR, RPARENT}, {PRINTFTK, LPARENT, STRCON, RPARENT}, {PRINTFTK, LPARENT, EXPGR, RPARENT}}},
+    {RETUSEGR, {{RETURNTK}, {RETURNTK, LPARENT, EXPGR, RPARENT}}}
 };
 
-unordered_map<int, string> re = {  //姝ゅ淇敼
-    {E, "E"},
-    {T, "T"},
-    {E1, "E1"},
-    {NU, "NU"},
-    {F, "F"},
-    {T1, "T1"},
-    {Jia, "Jia"},
-    {Chen, "Chen"},
-    {I, "I"},
-    {Lkh, "Lkh"},
-    {Rkh, "Rkh"}
+unordered_map<string, int> inputRefer = {
+    {"IDENFR", IDENFR},
+    {"INTCON", INTCON},
+    {"CHARCON", CHARCON},
+    {"STRCON", STRCON},
+    {"CONSTTK", CONSTTK},
+    {"INTTK", INTTK},
+    {"CHARTK", CHARTK},
+    {"VOIDTK", VOIDTK},
+    {"MAINTK", MAINTK},
+    {"IFTK", IFTK},
+    {"ELSETK", ELSETK},
+    {"DOTK", DOTK},
+    {"WHILETK", WHILETK},
+    {"FORTK", FORTK},
+    {"SCANFTK", SCANFTK},
+    {"PRINTFTK", PRINTFTK},
+    {"RETURNTK", RETURNTK},
+    {"PLUS", PLUS},
+    {"MINU", MINU},
+    {"MULT", MULT},
+    {"DIV", DIV},
+    {"LSS", LSS},
+    {"LEQ", LEQ},
+    {"GRE", GRE},
+    {"GEQ", GEQ},
+    {"EQL", EQL},
+    {"NEQ", NEQ},
+    {"ASSIGN", ASSIGN},
+    {"SEMICN", SEMICN},
+    {"COMMA", COMMA},
+    {"LPARENT", LPARENT},
+    {"RPARENT", RPARENT},
+    {"LBRACK", LBRACK},
+    {"RBRACK", RBRACK},
+    {"LBRACE", LBRACE},
+    {"RBRACE", RBRACE}
+};
+
+unordered_map<int, string> re = {
+    {STRCON, "字符串"},
+    {PROCGR, "程序"},
+    {CSGR, "常量说明"},
+    {CDGR, "常量定义"},
+    {UINTGR, "无符号整数"},
+    {INTGR, "整数"},
+    {STAHGR, "声明头部"},
+    {VARSGR, "变量说明"},
+    {VARDGR, "变量定义"},
+    {REFUNGR, "有返回值函数定义"},
+    {VOFUNGR, "无返回值函数定义"},
+    {COMSEGR, "复合语句"},
+    {PARAGR, "参数表"},
+    {MAINGR, "主函数"},
+    {EXPGR, "表达式"},
+    {XIGR, "项"},
+    {TRAGR, "因子"},
+    {SENGR, "语句"},
+    {EQSENGR, "赋值语句"},
+    {IFSENGR, "条件语句"},
+    {IFGR, "条件"},
+    {LOOPGR, "循环语句"},
+    {WLENGR, "步长"},
+    {REFUNUGR, "有返回值函数调用语句"},
+    {VOFUNUGR, "无返回值函数调用语句"},
+    {VPALIGR, "值参数表"},
+    {SELIGR, "语句列"},
+    {READSEGR, "读语句"},
+    {WRISEGR, "写语句"},
+    {RETUSEGR, "返回语句"},
+
+    {IDENFR, "IDENFR"},
+    {INTCON, "INTCON"},
+    {CHARCON, "CHARCON"},
+    {STRCON, "STRCON"},
+    {CONSTTK, "CONSTTK"},
+    {INTTK, "INTTK"},
+    {CHARTK, "CHARTK"},
+    {VOIDTK, "VOIDTK"},
+    {MAINTK, "MAINTK"},
+    {IFTK, "IFTK"},
+    {ELSETK, "ELSETK"},
+    {DOTK, "DOTK"},
+    {WHILETK, "WHILETK"},
+    {FORTK, "FORTK"},
+    {SCANFTK, "SCANFTK"},
+    {PRINTFTK, "PRINTFTK"},
+    {RETURNTK, "RETURNTK"},
+    {PLUS, "PLUS"},
+    {MINU, "MINU"},
+    {MULT, "MULT"},
+    {DIV, "DIV"},
+    {LSS, "LSS"},
+    {LEQ, "LEQ"},
+    {GRE, "GRE"},
+    {GEQ, "GEQ"},
+    {EQL, "EQL"},
+    {NEQ, "NEQ"},
+    {ASSIGN, "ASSIGN"},
+    {SEMICN, "SEMICN"},
+    {COMMA, "COMMA"},
+    {LPARENT, "LPARENT"},
+    {RPARENT, "RPARENT"},
+    {LBRACK, "LBRACK"},
+    {RBRACK, "RBRACK"},
+    {LBRACE, "LBRACE"},
+    {RBRACE, "RBRACE"},
 };
 
 class Node
@@ -138,11 +262,11 @@ bool HaveVNull(int val) {
 
 vector<int> GetVFirst(vector<int> &vec) {
     vector<int> vFirst;
-    int i = 0;
+    long long i = 0;
     for(auto &val : first[vec[0]]) {
         vFirst.push_back(val);
     }
-    while(i + 1 < vec.size() && HaveVNull(vec[i]) && IsNotEnd(vec[i])) {
+    while(i + 1 < int(vec.size()) && HaveVNull(vec[i]) && IsNotEnd(vec[i])) {
         i++;
         for(auto &val : first[vec[i]]) {
             vFirst.push_back(val);
@@ -187,6 +311,7 @@ vector<int> GetSelect(const int notEnd, vector<int> &right) {
 deque<vector<vector<int>>> GetLexeme(vector<int> &input, vector<int> &analyze) {
     deque<vector<vector<int>>> lexeme;
     while(input.size() != 0 || analyze.size() != 0) {
+        // cout << "c\n";
         vector<int> childrenValV;
         if(input.size() > 0 && predictAnalyzeTable.find(analyze.back()) != predictAnalyzeTable.end()) {
             childrenValV = predictAnalyzeTable[analyze.back()][input.back()];
@@ -203,6 +328,7 @@ deque<vector<vector<int>>> GetLexeme(vector<int> &input, vector<int> &analyze) {
             analyze.push_back(*it);
         }
     }
+    // cout << "d\n";
     return lexeme;
 }
 
@@ -225,13 +351,14 @@ shared_ptr<Node> GetTree(deque<vector<vector<int>>> &lexeme, int val) {
 }
 
 void OutputTree(shared_ptr<Node> node) {
+    ofstream out("output.txt");
     if(node == NULL) {
         return ;
     }
     for(auto child : node -> children_) {
         OutputTree(child);
     }
-    cout << re[node -> val_] << endl;
+    out << re[node -> val_] << endl;
 }
 
 int main() {
@@ -248,7 +375,7 @@ int main() {
     //     cout << endl;
     // }
     // cout << endl;
-    follow[E].insert(NU);  //姝ゅ淇敼
+    follow[PROCGR].insert(NU);  //此处修改
     GetFollow();
     GetFollow();
     // for(auto &p : follow) {
@@ -267,19 +394,33 @@ int main() {
             }
         }
     }
+    // int i = 0;
     // for(auto &p1 : predictAnalyzeTable) {
-    //     cout << p1.first << "\t";
+    //     if(i++ > 50) break;
+    //     if(re.find(p1.first) != re.cend()) cout << re[p1.first] << "\t";
     //     for(auto &p2 : p1.second) {
-    //         cout << "\tEnd" << p2.first << "\t";
+    //         if(re.find(p2.first) != re.cend()) cout << "\tEnd" << re[p2.first] << "\t";
     //         for(auto &i : p2.second) {
-    //             cout << i << " ";
+    //             if(re.find(i) != re.cend()) cout << re[i] << " ";
     //         }
     //     }
     //     cout << endl;
     // }
 
-    vector<int> input = {I, Chen, I, Jia, I};  //姝ゅ淇敼
-    vector<int> analyze = {E};  //姝ゅ淇敼
+    lab1();
+    ifstream in("laboutput.txt");
+    vector<int> input; 
+    string word;
+    while(in >> word) {
+        if(inputRefer.find(word) != inputRefer.end()) {
+            input.push_back(inputRefer[word]);
+        } else {
+            // cout << "inputRefer没有" << word << endl;
+        }
+    }
+
+    // cout << "a\n";
+    vector<int> analyze = {PROCGR}; 
     deque<vector<vector<int>>> lexeme = GetLexeme(input, analyze);
     // for(auto &vec : lexeme) {
     //     cout << vec[0][0] << "\t->\t";
@@ -288,8 +429,10 @@ int main() {
     //     }
     //     cout << endl;
     // }
+    // cout << "b\n";
     shared_ptr<Node> root = GetTree(lexeme, lexeme[0][0][0]);
 
+    // cout <<"line427";
     OutputTree(root);
 
     return 0;

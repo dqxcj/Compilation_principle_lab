@@ -49,32 +49,36 @@ const int RBRACE = 36; //}
 // const int CHARGR = 47; //字符
 // const int STRGR = 48; //字符串
 const int PROCGR = 49; //程序
-const int TFUNGR = 5960; //{有返回值函数定义|无返回值函数定义}
+const int TFUNGR = 5960; //辅助程序 {有返回值函数定义|无返回值函数定义}
 const int CSGR = 50; //常量说明
 const int CSGRH = 501; //辅助常量说明
 const int CDGR = 51; //常量定义
 const int CDGRH1 = 511; //辅助常量定义1
 const int CDGRH2 = 512; //辅助常量定义2
-const int UINTGR = INTCON; // 无符号整数就是lab1的整数
+const int UINTGR = 52; // 无符号整数就是lab1的整数
 const int INTGR = 53; //整数
 //const int IDENGR = 54; //标识符
 const int STAHGR = 55; //声明头部
 const int VARSGR = 56; //变量说明
 const int VARSGRH = 561; //辅助变量说明
 const int VARDGR = 57; //变量定义
-const int TYIDGR = 58; //类型标识符
+const int VARDGRH = 571; //辅助变量定义
+const int TYIDGR = 58; //类型标识符 ,不用输出这个
 const int REFUNGR = 59; //有返回值函数定义
 const int VOFUNGR = 60; //无返回值函数定义
 const int COMSEGR = 61; //复合语句
 const int PARAGR = 62; //参数表
 const int MAINGR = 63; //主函数
 const int EXPGR = 64; //表达式
+const int EXPGRH = 641; //辅助表达式
 const int XIGR = 65; //项
+const int XIGRH = 651; //辅助项
 const int TRAGR = 66; //因子
 const int SENGR = 67; //语句
 const int EQSENGR = 68; //赋值语句
 const int IFSENGR = 69; //条件语句
 const int IFGR = 70; //条件
+const int IFGRH = 701; //辅助条件
 const int LOOPGR = 71; //循环语句
 const int WLENGR = 72; //步长
 const int REFUNUGR = 73; //有返回值函数调用语句
@@ -82,6 +86,7 @@ const int VOFUNUGR = 74; //无返回值调用语句
 const int VPALIGR = 75; //值参数表
 const int SELIGR = 76; //语句列
 const int READSEGR = 77; //读语句
+const int READSEGRH = 771; //辅助读语句
 const int WRISEGR = 78; //写语句
 const int RETUSEGR = 79; //返回语句
 
@@ -102,6 +107,8 @@ const int Chen = 107;
 const int I = 108;
 const int Lkh = 109;
 const int Rkh = 110;
+
+
 
 
 #endif
