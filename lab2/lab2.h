@@ -22,7 +22,7 @@ const int PRINTFTK = 16; //printf
 const int RETURNTK = 17; //return 
 const int PLUS = 18; //+
 const int MINU = 19; //-
-const int MULT = 20; //*
+const int MULT = 20; // *
 const int DIV = 21; // /
 const int LSS = 22; //<
 const int LEQ = 23; //<=

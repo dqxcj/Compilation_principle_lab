@@ -7,57 +7,80 @@
 #include "lab2Struct.h"
 using namespace std;
 
-// pair.firstæ˜¯tokençš„å±æ€§, pair.secondæ˜¯tokenæœ¬èº«
+// pair.firstÊÇtokenµÄÊôĞÔ, pair.secondÊÇtoken±¾Éí
 vector<pair<int, string>> tokens;
-// indexä½œä¸ºtokensçš„ç´¢å¼•ï¼ŒæŒ‡å‘å½“å‰å¤„ç†çš„token
+// index×÷ÎªtokensµÄË÷Òı£¬Ö¸Ïòµ±Ç°´¦ÀíµÄtoken
 int index = 0;
 ifstream in("lab1output.txt");
 ofstream out("output.txt");
 
-// è·å–tokens
+// »ñÈ¡tokens
 void GetTokens(ifstream &in, vector<pair<int, string>> &tokens);
-// æŠ¥é”™
+// Êä³öµ¥Ìõtoken
+void OutToken();
+// ±¨´í
 void Error(const string &s);  
-// <ç¨‹åº>
+// <³ÌĞò>
 void IsProc();
-// <å¸¸é‡è¯´æ˜>
+// <³£Á¿ËµÃ÷>
 void IsCs();
-// <å¸¸é‡å®šä¹‰>
+// <³£Á¿¶¨Òå>
 void IsCd();
+// <ÎŞ·ûºÅÕûÊı>
 void IsUint();
+// <ÕûÊı>
 void IsInt();
-void IsIden();
+// <ÉùÃ÷Í·²¿>
 void IsStah();
-// <å˜é‡è¯´æ˜>
+// <±äÁ¿ËµÃ÷>
 void IsVars();
+// <±äÁ¿¶¨Òå>
 void IsVard();
-void IsTyid();
-// <æœ‰è¿”å›å€¼å‡½æ•°å®šä¹‰>
+// <ÓĞ·µ»ØÖµº¯Êı¶¨Òå>
 void IsRefun();
+// <ÎŞ·µ»ØÖµº¯Êı¶¨Òå>
 void IsVofun();
+// <¸´ºÏÓï¾ä>
 void IsComse();
+// <²ÎÊı±í>
 void IsPara();
-// <ä¸»å‡½æ•°>
+// <Ö÷º¯Êı>
 void IsMain();
+// <±í´ïÊ½>
 void IsExp();
+// <Ïî>
 void IsXi();
+// <Òò×Ó>
 void IsTra();
+// <Óï¾ä>
 void IsSen();
+// <¸³ÖµÓï¾ä>
 void IsEqsen();
+// <Ìõ¼şÓï¾ä>
 void IsIfsen();
+// <Ìõ¼ş>
 void IsIf();
+// <Ñ­»·Óï¾ä>
 void IsLoop();
+// <²½³¤>
 void IsWlen();
+// <ÓĞ·µ»ØÖµº¯Êıµ÷ÓÃÓï¾ä>
 void IsRefunu();
+// <ÎŞ·µ»ØÖµº¯Êıµ÷ÓÃÓï¾ä>
 void IsVofunu();
+// <Öµ²ÎÊı±í>
 void IsVpali();
+// <Óï¾äÁĞ>
 void IsSeli();
+// <¶ÁÓï¾ä>
 void IsReadse();
+// <Ğ´Óï¾ä>
 void IsWrise();
+// <·µ»ØÓï¾ä>
 void IsRetuse();
 
 int main() {
-    // å°†æºç è½¬æ¢ä¸ºtokenså¹¶æ”¾å…¥lab1output.txt
+    // ½«Ô´Âë×ª»»Îªtokens²¢·ÅÈëlab1output.txt
     Lab1();
     GetTokens(in, tokens);
     OutputTokens(tokens);
@@ -83,31 +106,31 @@ void GetTokens(ifstream &in, vector<pair<int, string>> &tokens) {
 }
 
 void IsProc() {
-    // [å¸¸é‡è¯´æ˜]
+    // [³£Á¿ËµÃ÷]
     if(tokens[index].first == CONSTTK) {    
         IsCs();
     }
-    // [å˜é‡è¯´æ˜] && ç¬¬ä¸€ä¸ª<æœ‰è¿”å›å€¼å‡½æ•°å®šä¹‰>
+    // [±äÁ¿ËµÃ÷] && µÚÒ»¸ö<ÓĞ·µ»ØÖµº¯Êı¶¨Òå>
     if(tokens[index].first == INTTK || tokens[index].first == CHARTK) {   
-        // ç¬¬ä¸€ä¸ª<æœ‰è¿”å›å€¼å‡½æ•°å®šä¹‰>ï¼Œ å…¶åä¸¤ä½å¿…æ˜¯'('
+        // µÚÒ»¸ö<ÓĞ·µ»ØÖµº¯Êı¶¨Òå>£¬ ÆäºóÁ½Î»±ØÊÇ'('
         if(tokens[index + 2].first == LPARENT) {
             ;
-        } else {    //[å˜é‡è¯´æ˜]
+        } else {    //[±äÁ¿ËµÃ÷]
             IsVars();
         }
     }
-    // {ï¼œæœ‰è¿”å›å€¼å‡½æ•°å®šä¹‰ï¼|ï¼œæ— è¿”å›å€¼å‡½æ•°å®šä¹‰ï¼} && <ä¸»å‡½æ•°>
+    // {£¼ÓĞ·µ»ØÖµº¯Êı¶¨Òå£¾|£¼ÎŞ·µ»ØÖµº¯Êı¶¨Òå£¾} && <Ö÷º¯Êı>
     while(tokens[index].first == INTTK || tokens[index].first == VOIDTK) {   
-        // <ä¸»å‡½æ•°> && <æ— è¿”å›å€¼å‡½æ•°å®šä¹‰>
+        // <Ö÷º¯Êı> && <ÎŞ·µ»ØÖµº¯Êı¶¨Òå>
         if(tokens[index].first == VOIDTK) {
-            if (tokens[index + 1].first == MAINTK) {  //ä¸»å‡½æ•°
+            if (tokens[index + 1].first == MAINTK) {  //Ö÷º¯Êı
                 IsMain();
-                out << "<ç¨‹åº>" << endl;
+                out << "<³ÌĞò>" << endl;
                 return;
-            } else {  // <æ— è¿”å›å€¼å‡½æ•°å®šä¹‰>
+            } else {  // <ÎŞ·µ»ØÖµº¯Êı¶¨Òå>
                 IsVofun();
             }
-        } else if(tokens[index].first == INTTK) {  // <æœ‰è¿”å›å€¼å‡½æ•°å®šä¹‰>
+        } else if(tokens[index].first == INTTK) {  // <ÓĞ·µ»ØÖµº¯Êı¶¨Òå>
             IsRefun();
         }
     }
@@ -118,14 +141,350 @@ void IsCs() {
     if(tokens[index].first != CONSTTK) {
         Error("IsCs");
     }
+    OutToken(); // const
     index++;
     IsCd();
-    index++;  //è·³è¿‡';'
-    if(tokens[index].first == CONSTTK) {
-        IsCs();  //é€’å½’æ¨¡æ‹Ÿ{const <å¸¸é‡å®šä¹‰> ;}
+    OutToken(); // ';'
+    index++;  
+    while(tokens[index].first == CONSTTK) {
+        OutToken(); // const
+        index++;
+        IsCd();
+        OutToken(); // ';'
+        index++;
     }
+    cout << "<³£Á¿ËµÃ÷>" << endl;
 }
 
 void IsCd() {
-
+    if(tokens[index].first == INTTK) {
+        OutToken(); //int
+        index++;
+        OutToken(); //±êÊ¶·û
+        index++;
+        OutToken(); //'='
+        index++;
+        IsInt();
+        while(tokens[index].first == COMMA) {
+            OutToken(); // ','
+            index++;
+            OutToken(); // ±êÊ¶·û
+            index++;
+            OutToken(); // '='
+            index++;
+            IsInt();
+        }
+        cout << "<³£Á¿¶¨Òå>" << endl;
+    } else if(tokens[index].first == CHARTK) {
+        OutToken(); //char
+        index++;
+        OutToken(); //±êÊ¶·û
+        index++;
+        OutToken(); //'='
+        index++;
+        OutToken(); //×Ö·û
+        index++;
+        while(tokens[index].first == COMMA) {
+            OutToken(); // ','
+            index++;
+            OutToken(); // ±êÊ¶·û
+            index++;
+            OutToken(); // '='
+            index++;
+            OutToken(); // ×Ö·û
+            index++;
+        }
+        cout << "<³£Á¿¶¨Òå>" << endl;
+    } else {
+        Error("Iscd");
+    }
 }
+
+void IsUint() {
+    OutToken();
+    index++;
+    cout << "<ÎŞ·ûºÅÕûÊı>" << endl;
+}
+
+void IsInt() {
+    if(tokens[index].first == PLUS) {
+        OutToken(); // '+'
+        index++;
+        IsUint();
+        cout << "<ÕûÊı>" << endl;
+    } else if(tokens[index].first == MINU) {
+        OutToken(); // '-'
+        index++;
+        IsUint();
+        cout << "<ÕûÊı>" << endl;
+    } else if(tokens[index].first == INTCON) {
+        IsUint();
+        cout << "ÕûÊı" << endl;
+    } else {
+        Error("IsInt");
+    }
+}
+
+void IsStah() {
+    if(tokens[index].first == INTTK) {
+        OutToken(); //int
+        index++;
+        OutToken(); //±êÊ¶·û
+        index++;
+        cout << "<ÉùÃ÷Í·²¿>" << endl;
+    } else if(tokens[index].first == CHARTK) {
+        OutToken(); // char
+        index++;
+        OutToken(); // ±êÊ¶·û
+        index++;
+        cout << "<ÉùÃ÷Í·²¿>" << endl;
+    } else {
+        Error("IsStah");
+    }
+}
+
+void IsVars() {
+    if(tokens[index].first == INTTK || tokens[index].first == CHARTK) {
+        IsVard();
+        OutToken(); // ';'
+        index++;
+        while((tokens[index].first == INTTK || tokens[index].first == CHARTK) && tokens[index + 2].first != LPARENT) { // != '(' ÅÅ³ıµ÷ÓÃIsVars()´¦ÓĞ·µ»ØÖµº¯Êı¶¨ÒåµÄ¸ÉÈÅ
+            IsVard();
+            OutToken(); // ';'
+            index++;
+        }
+        cout << "<±äÁ¿ËµÃ÷>" << endl;
+    } else {
+        Error("IsVars");
+    }
+}
+
+void IsVard() {
+    if(tokens[index].first == INTTK || tokens[index].first == CHARTK) {
+        OutToken(); // int | char
+        index++;
+        OutToken(); // ±êÊ¶·û
+        index++;
+        if(tokens[index].first == LBRACK) {
+            OutToken(); // '['
+            index++;
+            IsUint();
+            OutToken(); // ']'
+            index++;
+        }
+        while(tokens[index].first == COMMA) {
+            OutToken(); //','
+            index++;
+            OutToken(); // ±êÊ¶·û
+            index++;
+            if(tokens[index].first == LBRACK) {
+                OutToken(); // '['
+                index++;
+                IsUint();
+                OutToken(); // ']'
+                index++;
+            }
+        }
+        cout << "<±äÁ¿¶¨Òå>" << endl;
+    } else {
+        Error("IsVard");
+    }
+}
+
+void IsRefun() {
+    if(tokens[index].first == INTTK || tokens[index].first == CHARTK) {
+        IsStah();
+        OutToken(); // '('
+        index++;
+        IsPara();
+        OutToken(); // ')'
+        index++;
+        OutToken(); // '{'
+        index++;
+        IsComse();
+        OutToken(); // '}'
+        index++;
+        cout << "ÓĞ·µ»ØÖµº¯Êı¶¨Òå" << endl;
+    } else {
+        Error("IsRefun");
+    }
+}
+
+void IsVofun() {
+    if(tokens[index].first == VOIDTK) {
+        OutToken(); // void
+        index++;
+        OutToken(); //±êÊ¶·û
+        index++;
+        OutToken(); // '('
+        index++;
+        IsPara();
+        OutToken(); // ')'
+        index++;
+        OutToken(); // '{'
+        index++;
+        IsComse();
+        OutToken(); // '}'
+        cout << "<ÎŞ·µ»ØÖµº¯Êı¶¨Òå>" << endl;
+    } else {
+        Error("IsVofun");
+    }
+}
+
+void IsComse() {
+    if(tokens[index].first == CONSTTK) {
+        IsCs();
+    }
+    if((tokens[index].first == INTTK || tokens[index].first == CHARTK) && tokens[index + 2].first != LPARENT) {
+        IsVars();
+    }
+    IsSeli();
+    cout << "<¸´ºÏÓï¾ä>" << endl;
+}
+
+void IsPara() {
+    if(tokens[index].first == INTTK || tokens[index].first == CHARTK) {
+        OutToken(); // int | char
+        index++;
+        OutToken(); // ±êÊ¶·û
+        index++;
+        while(tokens[index].first == COMMA) {
+            OutToken(); // ','
+            index++;
+            OutToken(); // int | char
+            index++;
+            OutToken(); // ±êÊ¶·û
+            index++;
+        }
+        cout << "<²ÎÊı±í>" << endl;
+    }
+}
+
+void IsMain() {
+    if(tokens[index].first == VOIDTK) {
+        OutToken(); // void
+        index++;
+        OutToken(); // main 
+        index++;
+        OutToken(); // '('
+        index++;
+        OutToken(); // ')'
+        index++;
+        OutToken(); // '{'
+        index++;
+        IsComse();
+        OutToken(); // '}'
+        index++;
+        cout << "<Ö÷º¯Êı>" << endl;
+    } else {
+        Error("IsMain");
+    }
+}
+
+void IsExp() {
+    if(tokens[index].first == PLUS || tokens[index].first == MINU) {
+        OutToken(); // '+' | '-' 
+        index++;
+    }
+    IsXi();
+    while(tokens[index].first == PLUS || tokens[index].first == MINU) {
+        OutToken(); // '+' | '-'
+        index++;
+        IsXi();
+    }
+    cout << "<±í´ïÊ½>" << endl;
+}
+
+void IsXi() {
+    IsTra();
+    while(tokens[index].first == MULT || tokens[index].first == DIV) {
+        OutToken(); // '*' | '/'
+        index++;
+        IsTra();
+    }
+    cout << "<Ïî>" << endl;
+}
+
+void IsTra() {
+    if(tokens[index].first == IDENFR && tokens[index + 1].first != LPARENT) {
+        OutToken(); //±êÊ¶·û
+        index++;
+        if(tokens[index].first == LBRACK) {
+            OutToken(); // '['
+            index++;
+            IsExp();
+            OutToken(); // ']'
+            index++;
+        }
+        cout << "<Òò×Ó>" << endl;
+    } else if(tokens[index].first == LPARENT) {
+        OutToken(); // '('
+        index++;
+        IsExp();
+        OutToken(); // ')'
+        index++;
+        cout << "<Òò×Ó>" << endl;
+    } else if(tokens[index].first == PLUS || tokens[index].first == MINU || tokens[index].first == INTCON) {
+        IsInt();
+        cout << "<Òò×Ó>" << endl;
+    } else if(tokens[index].first == CHARCON) {
+        OutToken(); // ×Ö·û
+        index++;
+        cout << "<Òò×Ó>" << endl;
+    } else if(tokens[index].first == IDENFR && tokens[index + 1].first == LPARENT) {
+        IsRefun();
+        cout << "<Òò×Ó>" << endl;
+    } else {
+        Error("IsTra");
+    }
+}
+
+void IsSen() {
+    if(tokens[index].first == IFTK) {
+        IsIfsen();
+        cout << "<Óï¾ä>" << endl;
+    } else if(tokens[index].first == WHILETK || tokens[index].first == DOTK || tokens[index].first == FORTK) {
+        IsLoop();
+        cout << "<Óï¾ä>" << endl;
+    } else if(tokens[index].first == LBRACE) {
+        OutToken(); //'{'
+        index++;
+        IsSeli();
+        OutToken(); //'}'
+        index++;
+        cout << "<Óï¾ä>" << endl;
+    } else if(tokens[index].first == IDENFR && tokens[index + 1].first != ASSIGN) {
+        IsRefunu();
+        OutToken(); // ';'
+        index++;
+        cout << "<Óï¾ä>" << endl;
+    } else if(tokens[index].first == IDENFR && tokens[index + 1].first == ASSIGN) {
+        IsEqsen();
+        OutToken(); // ';'
+        index++;
+        cout << "<Óï¾ä>" << endl;
+    } else if(tokens[index].first == SCANFTK) {
+        IsReadse();
+        OutToken(); // ';'
+        index++;
+        cout << "<Óï¾ä>" << endl;
+    } else if(tokens[index].first == SCANFTK) {
+        IsWrise();
+        OutToken(); // ';'
+        index++;
+        cout << "<Óï¾ä>" << endl;
+    } else if(tokens[index].first == SEMICN) {
+        OutToken(); // ';'
+        index++;
+        cout << "<Óï¾ä>" << endl;
+    } else if(tokens[index].first == RETURNTK) {
+        IsReadse();
+        OutToken(); // ';'
+        index++;
+        cout << "<Óï¾ä>" << endl;
+    } else {
+        Error("IsSen");
+    }
+}
+
+
